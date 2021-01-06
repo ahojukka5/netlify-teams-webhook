@@ -43,11 +43,13 @@ type NetlifyPayload struct {
 	ID                  string              `json:"id"`
 	SiteID              string              `json:"site_id"`
 	BuildID             string              `json:"build_id"`
+	Name                string              `json:"name"`
 	DeployURL           string              `json:"deploy_url"`
 	DeploySSLURL        string              `json:"deploy_ssl_url"`
 	CreatedAt           string              `json:"created_at"`
 	UpdatedAt           string              `json:"updated_at"`
 	PublishedAt         string              `json:"published_at"`
+	DeployTime          int                 `json:"deploy_time"`
 	UserID              string              `json:"user_id"`
 	CommitRef           string              `json:"commit_ref"`
 	Branch              string              `json:"branch"`
