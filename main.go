@@ -54,6 +54,27 @@ type NetlifyPayload struct {
 	LogAccessAttributes LogAccessAttributes `json:"log_access_attributes"`
 }
 
+// Fact is part of Card
+type Fact struct {
+	Name  string `json:"name"`
+	Value string `json:"values"`
+}
+
+// Section is part of Card
+type Section struct {
+	ActivityTitle string `json:"activityTitle"`
+	Facts         []Fact `json:"facts"`
+}
+
+// Card contains the payload sent to MS Teams
+type Card struct {
+	Type       string    `json:"@type"`
+	Context    string    `json:"@context"`
+	ThemeColor string    `json:"themeColor"`
+	Summary    string    `json:"summary"`
+	Sections   []Section `json:"sections"`
+}
+
 func deployCreated(w http.ResponseWriter, req *http.Request) {
 
 	// Check header
