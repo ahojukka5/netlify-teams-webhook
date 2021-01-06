@@ -61,7 +61,7 @@ type NetlifyPayload struct {
 // Fact is part of Card
 type Fact struct {
 	Name  string `json:"name"`
-	Value string `json:"values"`
+	Value string `json:"value"`
 }
 
 // Section is part of Card
