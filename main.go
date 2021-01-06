@@ -98,7 +98,58 @@ func deployCreated(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Do something with the Person struct...
-	fmt.Fprintf(w, "NetlifyPayload: %+v", payload)
+	// fmt.Fprintf(w, "NetlifyPayload: %+v", payload)
+
+	title := payload.Name + " published new page at " + payload.PublishedAt
+
+	deployURL := Fact{
+		Name:  "deploy_url",
+		Value: fmt.Sprintf("<a href=\"%s\">%s<a>", payload.DeploySSLURL, payload.DeploySSLURL),
+	}
+
+	buildID := Fact{
+		Name:  "build_id",
+		Value: payload.BuildID,
+	}
+
+	createdAt := Fact{
+		Name:  "created_at",
+		Value: payload.CreatedAt,
+	}
+
+	publishedAt := Fact{
+		Name:  "published_at",
+		Value: payload.PublishedAt,
+	}
+
+	deployTime := Fact{
+		Name:  "deploy_time",
+		Value: strconv.Itoa(payload.DeployTime),
+	}
+
+	facts := []Fact{deployURL, buildID, createdAt, publishedAt, deployTime}
+
+	cardSection := Section{
+		ActivityTitle: title,
+		Facts:         facts,
+	}
+
+	cardSections := []Section{cardSection}
+
+	card := Card{
+		Type:       "MessageCard",
+		Context:    "http://schema.org/extensions",
+		ThemeColor: "0076D7",
+		Summary:    title,
+		Sections:   cardSections,
+	}
+	cardJSON, err := json.Marshal(&card)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Fprintln(w, string(cardJSON))
 }
 
 // getPort returns port from environment variable PORT if set, otherwise return
