@@ -4,6 +4,7 @@ package main
 // reflex -g '*.go' -s -- sh -c 'go build && ./netlify-teams-webhook'
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -53,6 +54,30 @@ type NetlifyPayload struct {
 	LogAccessAttributes LogAccessAttributes `json:"log_access_attributes"`
 }
 
+func deployCreated(w http.ResponseWriter, req *http.Request) {
+
+	// Check header
+	if req.Header.Get("X-Netlify-Event") != "deploy_created" {
+		msg := "X-Netlify-Event header is not deploy_created"
+		http.Error(w, msg, http.StatusUnsupportedMediaType)
+		return
+	}
+
+	// Declare a new NewlifyPayload struct.
+	var payload NetlifyPayload
+
+	// Try to decode the request body into the struct. If there is an error,
+	// respond to the client with the error message and a 400 status code.
+	err := json.NewDecoder(req.Body).Decode(&payload)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Do something with the Person struct...
+	fmt.Fprintf(w, "NetlifyPayload: %+v", payload)
+}
+
 // getPort returns port from environment variable PORT if set, otherwise return
 // defaultPort
 func getPort(defaultPort int) int {
@@ -69,6 +94,7 @@ func getPort(defaultPort int) int {
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/dump", dump)
+	mux.HandleFunc("/deploy_created", deployCreated)
 
 	port := ":" + strconv.Itoa(getPort(8090))
 	log.Println(fmt.Sprintf("Server running on http://localhost%s 🐹", port))
