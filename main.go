@@ -13,6 +13,8 @@ import (
 	"strconv"
 )
 
+const teamsWebhookURLEnv string = "TEAMS_WEBHOOK_URL"
+
 // dump request to stdout
 func dump(w http.ResponseWriter, req *http.Request) {
 
@@ -166,6 +168,11 @@ func getPort(defaultPort int) int {
 }
 
 func main() {
+	if _, exists := os.LookupEnv(teamsWebhookURLEnv); !exists {
+		println("Environment variable " + teamsWebhookURLEnv + " must be set.")
+		return
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/dump", dump)
 	mux.HandleFunc("/deploy_created", deployCreated)
