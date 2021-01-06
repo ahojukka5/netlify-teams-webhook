@@ -4,8 +4,10 @@ package main
 // reflex -g '*.go' -s -- sh -c 'go build && ./netlify-teams-webhook'
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -151,7 +153,21 @@ func deployCreated(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	fmt.Fprintln(w, string(cardJSON))
+	teamsWebhookURL := os.Getenv(teamsWebhookURLEnv)
+
+	fmt.Println("Sending " + string(cardJSON) + "\n\nto " + teamsWebhookURL + "\n")
+	request, err := http.NewRequest("POST", teamsWebhookURL, bytes.NewBuffer(cardJSON))
+	request.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		panic(err)
+	}
+	defer response.Body.Close()
+	fmt.Println("Response Status:", response.Status)
+	fmt.Println("response Headers:", response.Header)
+	body, _ := ioutil.ReadAll(response.Body)
+	fmt.Println("Response Body:", string(body))
 }
 
 // getPort returns port from environment variable PORT if set, otherwise return
