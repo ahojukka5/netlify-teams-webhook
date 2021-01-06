@@ -7,8 +7,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httputil"
 	"os"
@@ -165,9 +163,6 @@ func deployCreated(w http.ResponseWriter, req *http.Request) {
 	}
 	defer response.Body.Close()
 	fmt.Println("Response Status:", response.Status)
-	fmt.Println("response Headers:", response.Header)
-	body, _ := ioutil.ReadAll(response.Body)
-	fmt.Println("Response Body:", string(body))
 }
 
 // getPort returns port from environment variable PORT if set, otherwise return
@@ -184,20 +179,22 @@ func getPort(defaultPort int) int {
 }
 
 func main() {
-	if _, exists := os.LookupEnv(teamsWebhookURLEnv); !exists {
+	teamsWebhookURL, exists := os.LookupEnv(teamsWebhookURLEnv)
+	if !exists {
 		println("Environment variable " + teamsWebhookURLEnv + " must be set.")
 		return
 	}
+	fmt.Println("Sending Netlify notification to MS Teams Webhook at " + teamsWebhookURL)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/dump", dump)
 	mux.HandleFunc("/deploy_created", deployCreated)
 
 	port := ":" + strconv.Itoa(getPort(8090))
-	log.Println(fmt.Sprintf("Server running on http://localhost%s 🐹", port))
+	fmt.Println(fmt.Sprintf("Server running on http://localhost%s 🐹", port))
 	err := http.ListenAndServe(port, mux)
 	if err != nil {
-		log.Fatalf("could not run the server %v", err)
+		fmt.Println("could not run the server", err)
 		return
 	}
 }
