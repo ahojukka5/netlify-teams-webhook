@@ -28,6 +28,31 @@ func dump(w http.ResponseWriter, req *http.Request) {
 
 }
 
+// LogAccessAttributes is a part of NetlifyPayload
+type LogAccessAttributes struct {
+	Type     string `json:"type"`
+	URL      string `json:"url"`
+	Endpoint string `json:"endpoint"`
+	Path     string `json:"path"`
+	Token    string `json:"token"`
+}
+
+// NetlifyPayload is struct for json data what Netlify sends
+type NetlifyPayload struct {
+	ID                  string              `json:"id"`
+	SiteID              string              `json:"site_id"`
+	BuildID             string              `json:"build_id"`
+	DeployURL           string              `json:"deploy_url"`
+	DeploySSLURL        string              `json:"deploy_ssl_url"`
+	CreatedAt           string              `json:"created_at"`
+	UpdatedAt           string              `json:"updated_at"`
+	PublishedAt         string              `json:"published_at"`
+	UserID              string              `json:"user_id"`
+	CommitRef           string              `json:"commit_ref"`
+	Branch              string              `json:"branch"`
+	LogAccessAttributes LogAccessAttributes `json:"log_access_attributes"`
+}
+
 // getPort returns port from environment variable PORT if set, otherwise return
 // defaultPort
 func getPort(defaultPort int) int {
