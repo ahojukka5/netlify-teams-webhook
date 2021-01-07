@@ -40,6 +40,12 @@ type LogAccessAttributes struct {
 	Token    string `json:"token"`
 }
 
+// Links contains permalink
+type Links struct {
+	Permalink string `json:"permalink"`
+	Alias     string `json:"alias"`
+}
+
 // NetlifyPayload is struct for json data what Netlify sends
 type NetlifyPayload struct {
 	ID                  string              `json:"id"`
@@ -56,6 +62,7 @@ type NetlifyPayload struct {
 	CommitRef           string              `json:"commit_ref"`
 	Branch              string              `json:"branch"`
 	LogAccessAttributes LogAccessAttributes `json:"log_access_attributes"`
+	Links               Links               `json:"links"`
 }
 
 // Fact is part of Card
@@ -104,6 +111,11 @@ func deployCreated(w http.ResponseWriter, req *http.Request) {
 
 	title := payload.Name + " published new page at " + payload.PublishedAt
 
+	permalink := Fact{
+		Name:  "permalink",
+		Value: fmt.Sprintf("<a href=\"%s\">%s<a>", payload.Links.Permalink, payload.Links.Permalink),
+	}
+
 	deployURL := Fact{
 		Name:  "deploy_url",
 		Value: fmt.Sprintf("<a href=\"%s\">%s<a>", payload.DeploySSLURL, payload.DeploySSLURL),
@@ -129,7 +141,7 @@ func deployCreated(w http.ResponseWriter, req *http.Request) {
 		Value: strconv.Itoa(payload.DeployTime),
 	}
 
-	facts := []Fact{deployURL, buildID, createdAt, publishedAt, deployTime}
+	facts := []Fact{permalink, deployURL, buildID, createdAt, publishedAt, deployTime}
 
 	cardSection := Section{
 		ActivityTitle: title,
